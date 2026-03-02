@@ -45,17 +45,17 @@ export function Sidebar() {
       {/* Menu Lateral (Fixo no PC, Gaveta Deslizante no Celular) */}
       <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
 
-        {/* CABEÇALHO DO MENU TRAVADO NA FORÇA BRUTA */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-slate-800">
-          <div className="w-36 md:w-48 flex items-center">
+        {/* CABEÇALHO DO MENU */}
+        <div className="h-16 flex items-center justify-between px-3 border-b border-slate-800 overflow-hidden">
+          <div className="flex-1 min-w-0 flex items-center mr-2">
             <img 
               src="/logo-texto.png" 
               alt="Torque IA" 
-              className="w-full h-auto object-contain" 
+              className="h-9 md:h-10 w-auto max-w-full object-contain" 
             />
           </div>
           {/* Botão de Fechar o menu no celular */}
-          <button onClick={() => setIsOpen(false)} className="md:hidden text-slate-400 hover:text-white p-2">
+          <button onClick={() => setIsOpen(false)} className="md:hidden text-slate-400 hover:text-white p-2 shrink-0">
             <X className="w-6 h-6" />
           </button>
         </div>
@@ -68,7 +68,7 @@ export function Sidebar() {
               <Link
                 key={item.name}
                 to={item.href}
-                onClick={() => setIsOpen(false)} // Fecha a gaveta ao clicar em um link
+                onClick={() => setIsOpen(false)}
                 className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium transition-colors ${
                   isActive
                     ? 'bg-emerald-500/10 text-emerald-400'
