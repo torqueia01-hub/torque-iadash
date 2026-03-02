@@ -1,6 +1,6 @@
 import { LayoutGrid, Users, Wrench, Car, BarChart3, Package, LogOut, Settings, UserCog, ShoppingBag, AlertTriangle } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { supabase } from '../../lib/supabase'
+import { supabase } from '../lib/supabase'
 
 const navigation = [
   { name: 'Painel Executivo',        href: '/',          icon: LayoutGrid    },
@@ -25,13 +25,9 @@ export function Sidebar() {
   return (
     <div className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0">
 
-      <div className="h-16 flex items-center px-6 border-b border-slate-800">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center font-bold text-white shadow-sm">
-            T
-          </div>
-          <span className="text-white font-bold text-lg tracking-wider">TORQUE IA</span>
-        </div>
+      {/* AQUI ENTRA A LOGO 3 (TEXTO) */}
+      <div className="h-16 flex items-center justify-center px-6 border-b border-slate-800">
+        <img src="/logo-texto.png" alt="Torque IA" className="h-8 object-contain" />
       </div>
 
       <nav className="flex-1 py-6 px-4 space-y-1.5 overflow-y-auto">
