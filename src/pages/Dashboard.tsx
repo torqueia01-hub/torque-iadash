@@ -47,10 +47,11 @@ export function Dashboard() {
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
 
-      <header className="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-slate-900/50">
+      {/* CABEÇALHO ATUALIZADO: Responsivo (Coluna no celular, Linha no PC) */}
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <h1 className="text-xl font-semibold text-white tracking-wide">Visão Geral do Negócio</h1>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-slate-500">De</label>
             <input
@@ -80,9 +81,9 @@ export function Dashboard() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <MetricCard
             title="Ticket Médio"
             value={fmt(currentTicket)}
@@ -113,13 +114,13 @@ export function Dashboard() {
           />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-4 md:mt-6">
           <TicketIntelligenceWidget orders={closedOrders} goals={goals} />
         </div>
 
         <RevenueChart />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
           <RetentionWidget />
           <MarginWidget />
         </div>
