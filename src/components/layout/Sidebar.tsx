@@ -1,6 +1,6 @@
 import { LayoutGrid, Users, Wrench, Car, BarChart3, Package, LogOut, Settings, UserCog, ShoppingBag, AlertTriangle } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { supabase } from '../../lib/supabase'
 
 const navigation = [
   { name: 'Painel Executivo',        href: '/',          icon: LayoutGrid    },
