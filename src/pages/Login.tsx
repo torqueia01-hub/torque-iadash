@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { Mail, Lock, Loader2 } from 'lucide-react'
 
@@ -8,7 +7,6 @@ export function Login() {
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -22,7 +20,8 @@ export function Login() {
       })
 
       if (error) throw error
-      navigate('/')
+      // Usa o redirecionamento nativo do navegador para não quebrar o React
+      window.location.href = '/'
     } catch (error: any) {
       setError('Erro ao fazer login. Verifique suas credenciais.')
     } finally {
@@ -34,7 +33,6 @@ export function Login() {
     <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl">
         
-        {/* AQUI ENTRA A LOGO 1 (ENGRENAGEM COM BRILHO NEON) */}
         <div className="text-center mb-8">
           <img
             src="/logo.png"
