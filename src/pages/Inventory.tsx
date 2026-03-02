@@ -15,7 +15,7 @@ export function Inventory() {
       const { data } = await supabase
         .from('produtos_servicos')
         .select('*')
-        .eq('tipo', 'peca') // Oculta serviços, mostra só peças
+        .eq('tipo', 'peca')
         .eq('ativo', true)
         .order('estoque_atual', { ascending: false })
       if (data) setInventory(data)
@@ -26,7 +26,6 @@ export function Inventory() {
     }
   }
 
-  // O "Cérebro" do Estoque: Analisa a situação e dá a sugestão de mercado
   const getInventoryIntelligence = (atual: number, minimo: number) => {
     if (atual === 0) {
       return { 
@@ -44,7 +43,6 @@ export function Inventory() {
         action: `Repor estoque. Faltam ${minimo - atual} para o mínimo de segurança.` 
       }
     }
-    // Se tem mais de 3 vezes o estoque mínimo, é capital parado
     if (minimo > 0 && atual >= minimo * 3) {
       return { 
         status: 'Capital Parado', 
@@ -61,7 +59,6 @@ export function Inventory() {
     }
   }
 
-  // KPIs
   const capitalImobilizado = inventory.reduce((sum, item) => sum + (Number(item.preco_custo) * Number(item.estoque_atual)), 0)
   const itensEmAlerta = inventory.filter(i => i.estoque_atual < i.estoque_minimo).length
 
@@ -69,7 +66,7 @@ export function Inventory() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="h-16 border-b border-slate-800 flex items-center px-8 bg-slate-900/50">
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <div>
           <h1 className="text-xl font-semibold text-white tracking-wide flex items-center gap-2">
             <Package className="w-6 h-6 text-indigo-400" />
@@ -79,10 +76,8 @@ export function Inventory() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-        
-        {/* Cards de KPI */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6">
           <div className="bg-slate-800 p-6 rounded-2xl border border-slate-700 shadow-sm">
             <p className="text-slate-400 text-sm font-medium">Dinheiro na Prateleira (Custo)</p>
             <h3 className="text-3xl font-bold text-white mt-2">{fmt(capitalImobilizado)}</h3>
@@ -109,13 +104,12 @@ export function Inventory() {
               className="w-full bg-slate-800 border border-slate-700 text-white rounded-lg pl-10 pr-4 py-2.5 focus:outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
-          <button className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2.5 rounded-lg font-medium flex items-center space-x-2 hover:bg-slate-700 transition-colors">
+          <button className="bg-slate-800 border border-slate-700 text-slate-300 px-4 py-2.5 rounded-lg font-medium flex items-center justify-center space-x-2 hover:bg-slate-700 transition-colors">
             <Filter className="w-5 h-5" />
             <span>Filtrar</span>
           </button>
         </div>
 
-        {/* Tabela de Estoque Inteligente */}
         <div className="bg-slate-800 rounded-2xl border border-slate-700 shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm text-slate-400">
@@ -182,7 +176,6 @@ export function Inventory() {
             </table>
           </div>
         </div>
-
       </main>
     </div>
   )

@@ -12,8 +12,6 @@ export function Reports() {
   const [produtos, setProdutos] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState(new Date())
-  
-  // NOVO: Estado para armazenar a meta financeira global
   const [goals, setGoals] = useState<any>(null)
 
   useEffect(() => {
@@ -36,7 +34,6 @@ export function Reports() {
           .from('produtos_servicos')
           .select('*')
           .eq('ativo', true),
-        // Busca a configuração de metas
         supabase
           .from('financial_goals')
           .select('*')
@@ -72,17 +69,13 @@ export function Reports() {
   }
 
   const allOrders = [...orders, ...closedOrders]
-
-  // Lendo a Margem Mínima do banco (ou usando 40 como fallback)
   const minMargin = goals?.min_margin_percentage ? Number(goals.min_margin_percentage) : 40
 
-  // 1. OS paradas sem movimentação há mais de 24h
   const osParadas = orders.filter(o =>
     (o.status === 'aberta' || o.status === 'aguardando') &&
     horasParadas(o.data_abertura) > 24
   ).sort((a, b) => horasParadas(b.data_abertura) - horasParadas(a.data_abertura))
 
-  // 2. Mecânicos com gargalo (3+ OS em aberto)
   const mechanicsMap: Record<string, number> = {}
   orders.forEach(o => {
     if (o.mecanico) mechanicsMap[o.mecanico] = (mechanicsMap[o.mecanico] || 0) + 1
@@ -92,22 +85,18 @@ export function Reports() {
     .map(([nome, count]) => ({ nome, count }))
     .sort((a, b) => b.count - a.count)
 
-  // 3. Peças paradas sem giro
   const pecasParadas = produtos.filter(p =>
     p.tipo === 'peca' && Number(p.estoque_atual) > Number(p.estoque_minimo) * 2
   ).sort((a, b) => Number(b.estoque_atual) - Number(a.estoque_atual))
 
-  // 4. Carros prontos não buscados
   const carrosProntos = orders.filter(o =>
     o.data_conclusao && o.status !== 'fechada'
   ).sort((a, b) => diasParados(b.data_conclusao) - diasParados(a.data_conclusao))
 
-  // 5. OS com Margem abaixo da configurada (Agora é DINÂMICO!)
   const osBaixaMargem = allOrders.filter(o => 
     o.margem_lucro !== null && Number(o.margem_lucro) < minMargin
   ).sort((a, b) => Number(a.margem_lucro) - Number(b.margem_lucro))
 
-  // 6. Risco de Ruptura (Peças Faltando)
   const pecasEmRisco = produtos.filter(p => 
     p.tipo === 'peca' && Number(p.estoque_atual) <= Number(p.estoque_minimo)
   ).sort((a, b) => {
@@ -116,7 +105,6 @@ export function Reports() {
     return proporcaoA - proporcaoB
   })
 
-  // 7. CÁLCULO DE CRESCIMENTO
   const mesAtual = agora.getMonth()
   const anoAtual = agora.getFullYear()
   const mesPassado = mesAtual === 0 ? 11 : mesAtual - 1
@@ -149,11 +137,11 @@ export function Reports() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-slate-900/50">
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <div>
           <h1 className="text-xl font-semibold text-white tracking-wide flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-orange-400" />
-            Central de Alertas e Tomada de Decisão
+            Central de Alertas e Decisão
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">
             Atualizado às {lastUpdate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -161,14 +149,14 @@ export function Reports() {
         </div>
         <button
           onClick={fetchData}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-slate-500 transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border border-slate-700 bg-slate-800 text-slate-400 hover:text-white hover:border-slate-500 transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Atualizar
         </button>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
         {loading ? (
           <div className="flex flex-col items-center justify-center h-64">
             <Loader2 className="w-8 h-8 animate-spin text-emerald-500 mb-3" />
@@ -177,12 +165,11 @@ export function Reports() {
         ) : (
           <div className="space-y-6">
             
-            {/* Resumo geral */}
             <div className={`rounded-2xl border p-5 flex items-center justify-between ${
               totalAlerts === 0 ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-rose-500/5 border-rose-500/20'
             }`}>
               <div className="flex items-center gap-3">
-                {totalAlerts === 0 ? <CheckCircle className="w-6 h-6 text-emerald-400" /> : <AlertTriangle className="w-6 h-6 text-rose-400" />}
+                {totalAlerts === 0 ? <CheckCircle className="w-6 h-6 text-emerald-400 shrink-0" /> : <AlertTriangle className="w-6 h-6 text-rose-400 shrink-0" />}
                 <div>
                   <p className={`font-bold text-lg ${totalAlerts === 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {totalAlerts === 0 ? 'Tudo sob controle!' : `${totalAlerts} alertas pendentes de ação`}
@@ -194,14 +181,13 @@ export function Reports() {
               </div>
             </div>
 
-            {/* SEÇÃO ESTRATÉGICA: PROJEÇÃO E TERMÔMETRO */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-emerald-400" />
-                  <h2 className="text-white font-semibold">Termômetro de Crescimento & Projeção</h2>
+                  <h2 className="text-white font-semibold">Crescimento & Projeção</h2>
                 </div>
-                <span className="text-xs text-slate-500">Dia {diaAtual} de {diasNoMes} ({Math.round((diaAtual / diasNoMes) * 100)}% concluído)</span>
+                <span className="text-xs text-slate-500">Dia {diaAtual} de {diasNoMes} ({Math.round((diaAtual / diasNoMes) * 100)}%)</span>
               </div>
               <div className="p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                 <div className="bg-slate-900/50 border border-slate-700 rounded-xl p-4">
@@ -214,11 +200,11 @@ export function Reports() {
                   <p className="text-2xl font-bold text-slate-300 mt-1">{fmt(faturamentoMesPassadoAteHoje)}</p>
                   <div className={`mt-1.5 flex items-center gap-1 text-xs font-bold ${crescimentoPercentual >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {crescimentoPercentual >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                    <span>{Math.abs(crescimentoPercentual).toFixed(1)}% {crescimentoPercentual >= 0 ? 'de crescimento' : 'de queda'}</span>
+                    <span>{Math.abs(crescimentoPercentual).toFixed(1)}% {crescimentoPercentual >= 0 ? 'crescimento' : 'queda'}</span>
                   </div>
                 </div>
                 <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4">
-                  <p className="text-emerald-400/80 text-xs uppercase tracking-wider">Projeção Final do Mês</p>
+                  <p className="text-emerald-400/80 text-xs uppercase tracking-wider">Projeção Final</p>
                   <p className="text-2xl font-bold text-emerald-400 mt-1">{fmt(projecao)}</p>
                   <p className="text-emerald-500/70 text-xs mt-1">Mantendo {fmt(mediaDiaria)}/dia</p>
                 </div>
@@ -230,7 +216,6 @@ export function Reports() {
               </div>
             </div>
 
-            {/* ALERTA: LISTA DE COMPRAS URGENTE (Ruptura) */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 flex items-center justify-between border-b ${
                 pecasEmRisco.length > 0 ? 'border-orange-500/20 bg-orange-500/5' : 'border-slate-700'
@@ -247,15 +232,15 @@ export function Reports() {
                   <CheckCircle className="w-4 h-4 text-emerald-500" /> Estoque protegido. Nenhuma peça abaixo do limite.
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-80">
+                <div className="overflow-x-auto max-h-80">
                   <table className="w-full text-left text-sm text-slate-400">
                     <thead className="text-xs uppercase bg-slate-800 text-slate-300 sticky top-0 z-10 border-b border-slate-700 shadow-sm">
                       <tr>
-                        <th className="px-6 py-4">Produto / Peça</th>
-                        <th className="px-6 py-4 text-center">Estoque Atual</th>
-                        <th className="px-6 py-4 text-center">Mínimo Segurança</th>
-                        <th className="px-6 py-4 text-center">Situação</th>
-                        <th className="px-6 py-4 text-right">Potencial Venda Unit.</th>
+                        <th className="px-6 py-4 whitespace-nowrap">Produto / Peça</th>
+                        <th className="px-6 py-4 text-center whitespace-nowrap">Estoque Atual</th>
+                        <th className="px-6 py-4 text-center whitespace-nowrap">Mínimo</th>
+                        <th className="px-6 py-4 text-center whitespace-nowrap">Situação</th>
+                        <th className="px-6 py-4 text-right whitespace-nowrap">Potencial de Venda</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-700/50">
@@ -284,7 +269,6 @@ export function Reports() {
               )}
             </div>
 
-            {/* ALERTA: OS com Baixa Margem */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 flex items-center justify-between border-b ${
                 osBaixaMargem.length > 0 ? 'border-rose-500/20 bg-rose-500/5' : 'border-slate-700'
@@ -294,8 +278,7 @@ export function Reports() {
                   <h2 className="text-white font-semibold">OS com Baixa Rentabilidade</h2>
                   {osBaixaMargem.length > 0 && <span className="px-2 py-0.5 rounded-full text-xs font-bold bg-rose-500 text-white">{osBaixaMargem.length}</span>}
                 </div>
-                {/* O TEXTO AGORA É DINÂMICO! */}
-                <span className="text-xs text-slate-500">Margem abaixo de {minMargin}% (Risco Operacional)</span>
+                <span className="text-xs text-slate-500">Margem &lt; {minMargin}%</span>
               </div>
               
               {osBaixaMargem.length === 0 ? (
@@ -303,7 +286,7 @@ export function Reports() {
                   <CheckCircle className="w-4 h-4 text-emerald-500" /> Nenhuma OS abaixo da meta de lucro
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-80">
+                <div className="overflow-x-auto max-h-80">
                   <table className="w-full text-left text-sm text-slate-400">
                     <thead className="text-xs uppercase bg-slate-800 text-slate-300 sticky top-0 z-10 border-b border-slate-700 shadow-sm">
                       <tr>
@@ -338,7 +321,6 @@ export function Reports() {
               )}
             </div>
 
-            {/* ALERTA: OS Paradas */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 flex items-center justify-between border-b ${
                 osParadas.length > 0 ? 'border-orange-500/20 bg-orange-500/5' : 'border-slate-700'
@@ -355,7 +337,7 @@ export function Reports() {
                   <CheckCircle className="w-4 h-4 text-emerald-500" /> Nenhuma OS parada
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-80">
+                <div className="overflow-x-auto max-h-80">
                   <table className="w-full text-left text-sm text-slate-400">
                     <thead className="text-xs uppercase bg-slate-800 text-slate-300 sticky top-0 z-10 border-b border-slate-700 shadow-sm">
                       <tr>
@@ -393,7 +375,6 @@ export function Reports() {
               )}
             </div>
 
-            {/* ALERTA: Mecânicos com Gargalo */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 border-b flex items-center justify-between ${
                 mecanicosGargalo.length > 0 ? 'border-yellow-500/20 bg-yellow-500/5' : 'border-slate-700'
@@ -424,7 +405,6 @@ export function Reports() {
               )}
             </div>
 
-            {/* ALERTA: Peças Paradas */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 flex items-center justify-between border-b ${
                 pecasParadas.length > 0 ? 'border-purple-500/20 bg-purple-500/5' : 'border-slate-700'
@@ -441,7 +421,7 @@ export function Reports() {
                   <CheckCircle className="w-4 h-4 text-emerald-500" /> Nenhuma peça com excesso de estoque
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-80">
+                <div className="overflow-x-auto max-h-80">
                   <table className="w-full text-left text-sm text-slate-400">
                     <thead className="text-xs uppercase bg-slate-800 text-slate-300 sticky top-0 z-10 border-b border-slate-700 shadow-sm">
                       <tr>
@@ -466,7 +446,6 @@ export function Reports() {
               )}
             </div>
 
-            {/* ALERTA: Carros Prontos não Buscados */}
             <div className="bg-slate-800 rounded-2xl border border-slate-700 overflow-hidden">
               <div className={`px-6 py-4 flex items-center justify-between border-b ${
                 carrosProntos.length > 0 ? 'border-blue-500/20 bg-blue-500/5' : 'border-slate-700'
@@ -483,7 +462,7 @@ export function Reports() {
                   <CheckCircle className="w-4 h-4 text-emerald-500" /> Nenhum carro aguardando retirada
                 </div>
               ) : (
-                <div className="overflow-y-auto max-h-80">
+                <div className="overflow-x-auto max-h-80">
                   <table className="w-full text-left text-sm text-slate-400">
                     <thead className="text-xs uppercase bg-slate-800 text-slate-300 sticky top-0 z-10 border-b border-slate-700 shadow-sm">
                       <tr>

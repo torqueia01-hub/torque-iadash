@@ -80,13 +80,11 @@ export function Orders() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-
-      <header className="h-16 border-b border-slate-800 flex items-center justify-between px-4 md:px-8 bg-slate-900/50">
-        <h1 className="text-lg md:text-xl font-semibold text-white tracking-wide">Ordens de Serviço</h1>
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
+        <h1 className="text-xl font-semibold text-white tracking-wide">Ordens de Serviço</h1>
       </header>
 
       <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
-
         {goals && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4 mb-6">
             <div className="bg-slate-800 border border-rose-500/20 rounded-xl px-4 py-3 flex items-center justify-between">
@@ -127,7 +125,6 @@ export function Orders() {
           <div className="py-12 text-center text-slate-400">Nenhuma ordem encontrada.</div>
         ) : (
           <>
-            {/* VISÃO MOBILE (CELULAR): Lista de Cards */}
             <div className="grid grid-cols-1 gap-4 md:hidden">
               {ordersList.map((order) => {
                 const intelligence = getMarginIntelligence(order.valor_total, order.custo_total || 0)
@@ -177,7 +174,6 @@ export function Orders() {
               })}
             </div>
 
-            {/* VISÃO DESKTOP (COMPUTADOR): Tabela Clássica */}
             <div className="hidden md:block bg-slate-800 rounded-2xl border border-slate-700 shadow-sm overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-sm text-slate-400">

@@ -38,7 +38,6 @@ export function Margin() {
     return               { label: 'Crítico',       color: 'bg-rose-500/20 text-rose-400' }
   }
 
-  // Aplica todos os filtros
   const filtered = marginData.filter(item => {
     const matchSearch = item.descricao?.toLowerCase().includes(search.toLowerCase())
     const matchTipo = filterTipo === 'todos' || item.tipo === filterTipo
@@ -53,17 +52,14 @@ export function Margin() {
 
   const margemMedia = filtered.length > 0
     ? filtered.reduce((sum, i) => sum + Number(i.margem_lucro), 0) / filtered.length : 0
-
   const margemMediaServicos = servicos.length > 0
     ? servicos.reduce((sum, i) => sum + Number(i.margem_lucro), 0) / servicos.length : 0
-
   const margemMediaPecas = pecas.length > 0
     ? pecas.reduce((sum, i) => sum + Number(i.margem_lucro), 0) / pecas.length : 0
 
   const maisRentavel = servicos.length > 0
     ? servicos.reduce((max, i) => Number(i.margem_lucro) > Number(max.margem_lucro) ? i : max, servicos[0])
     : filtered[0]
-
   const menosRentavel = pecas.length > 0
     ? pecas.reduce((min, i) => Number(i.margem_lucro) < Number(min.margem_lucro) ? i : min, pecas[0])
     : filtered[filtered.length - 1]
@@ -79,7 +75,7 @@ export function Margin() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="h-16 border-b border-slate-800 flex items-center px-8 bg-slate-900/50">
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <div>
           <h1 className="text-xl font-semibold text-white tracking-wide flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-blue-400" />
@@ -89,9 +85,7 @@ export function Margin() {
         </div>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-
-        {/* KPI Cards */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
         <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-4 mb-6">
           <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700 shadow-sm flex flex-col justify-center">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Média Geral</p>
@@ -130,10 +124,7 @@ export function Margin() {
           </div>
         </div>
 
-        {/* Filtros */}
         <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 mb-6 flex flex-wrap gap-3 items-end">
-
-          {/* Busca */}
           <div className="flex-1 min-w-[180px] relative">
             <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
@@ -144,8 +135,6 @@ export function Margin() {
               className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg pl-9 pr-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-
-          {/* Tipo */}
           <div className="flex gap-2">
             {(['todos', 'servico', 'peca'] as const).map(tipo => (
               <button
@@ -161,8 +150,6 @@ export function Margin() {
               </button>
             ))}
           </div>
-
-          {/* Data Início */}
           <div className="flex flex-col gap-1">
             <label className="text-xs text-slate-500">De</label>
             <input
@@ -172,8 +159,6 @@ export function Margin() {
               className="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-
-          {/* Data Fim */}
           <div className="flex flex-col gap-1">
             <label className="text-xs text-slate-500">Até</label>
             <input
@@ -183,8 +168,6 @@ export function Margin() {
               className="bg-slate-900 border border-slate-700 text-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
             />
           </div>
-
-          {/* Limpar filtros */}
           {temFiltro && (
             <button
               onClick={limparFiltros}
@@ -193,70 +176,70 @@ export function Margin() {
               Limpar
             </button>
           )}
-
           <div className="flex items-center gap-1 text-slate-500 text-xs ml-auto">
             <Filter className="w-3.5 h-3.5" />
             <span>{filtered.length} itens</span>
           </div>
         </div>
 
-        {/* Tabela */}
         <div className="bg-slate-800 rounded-2xl border border-slate-700 shadow-sm overflow-hidden">
-          <table className="w-full text-left text-sm text-slate-400">
-            <thead className="text-xs uppercase bg-slate-700/50 text-slate-300 border-b border-slate-700">
-              <tr>
-                <th className="px-6 py-4">Item (Peça / Serviço)</th>
-                <th className="px-6 py-4">Categoria</th>
-                <th className="px-6 py-4 text-right">Custo de Aquisição</th>
-                <th className="px-6 py-4 text-right">Preço de Venda</th>
-                <th className="px-6 py-4 text-right">Lucro Bruto</th>
-                <th className="px-6 py-4 text-center">Margem</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-700/50">
-              {loading ? (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm text-slate-400">
+              <thead className="text-xs uppercase bg-slate-700/50 text-slate-300 border-b border-slate-700">
                 <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                    <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-500" />
-                    <p>Buscando dados...</p>
-                  </td>
+                  <th className="px-6 py-4">Item (Peça / Serviço)</th>
+                  <th className="px-6 py-4">Categoria</th>
+                  <th className="px-6 py-4 text-right">Custo de Aquisição</th>
+                  <th className="px-6 py-4 text-right">Preço de Venda</th>
+                  <th className="px-6 py-4 text-right">Lucro Bruto</th>
+                  <th className="px-6 py-4 text-center">Margem</th>
                 </tr>
-              ) : filtered.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
-                    Nenhum item encontrado para os filtros selecionados.
-                  </td>
-                </tr>
-              ) : (
-                filtered.map((item) => {
-                  const lucro = Number(item.preco_venda) - Number(item.preco_custo)
-                  const status = getMarginStatus(Number(item.margem_lucro))
-                  return (
-                    <tr key={item.id} className="hover:bg-slate-700/30 transition-colors">
-                      <td className="px-6 py-4 text-white font-medium">{item.descricao}</td>
-                      <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded text-xs border ${
-                          item.tipo === 'servico'
-                            ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
-                            : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                        }`}>
-                          {item.tipo === 'servico' ? 'Serviço' : 'Peça'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 text-right">{fmt(item.preco_custo)}</td>
-                      <td className="px-6 py-4 text-right font-medium text-white">{fmt(item.preco_venda)}</td>
-                      <td className="px-6 py-4 text-right text-emerald-400 font-medium">{fmt(lucro)}</td>
-                      <td className="px-6 py-4 text-center">
-                        <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${status.color}`}>
-                          {Number(item.margem_lucro).toFixed(1)}%
-                        </span>
-                      </td>
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3 text-emerald-500" />
+                      <p>Buscando dados...</p>
+                    </td>
+                  </tr>
+                ) : filtered.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-12 text-center text-slate-400">
+                      Nenhum item encontrado para os filtros selecionados.
+                    </td>
+                  </tr>
+                ) : (
+                  filtered.map((item) => {
+                    const lucro = Number(item.preco_venda) - Number(item.preco_custo)
+                    const status = getMarginStatus(Number(item.margem_lucro))
+                    return (
+                      <tr key={item.id} className="hover:bg-slate-700/30 transition-colors">
+                        <td className="px-6 py-4 text-white font-medium">{item.descricao}</td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2 py-1 rounded text-xs border ${
+                            item.tipo === 'servico'
+                              ? 'bg-purple-500/10 text-purple-400 border-purple-500/20'
+                              : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                          }`}>
+                            {item.tipo === 'servico' ? 'Serviço' : 'Peça'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-right">{fmt(item.preco_custo)}</td>
+                        <td className="px-6 py-4 text-right font-medium text-white">{fmt(item.preco_venda)}</td>
+                        <td className="px-6 py-4 text-right text-emerald-400 font-medium">{fmt(lucro)}</td>
+                        <td className="px-6 py-4 text-center">
+                          <span className={`px-3 py-1.5 rounded-full text-xs font-bold ${status.color}`}>
+                            {Number(item.margem_lucro).toFixed(1)}%
+                          </span>
+                        </td>
+                      </tr>
+                    )
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </main>
     </div>

@@ -7,10 +7,7 @@ export function Settings() {
   const [fixedCost, setFixedCost] = useState<number>(0)
   const [desiredProfit, setDesiredProfit] = useState<number>(0)
   const [averageOrders, setAverageOrders] = useState<number>(1)
-  
-  // NOVO ESTADO: Margem Mínima
   const [minMargin, setMinMargin] = useState<number>(40)
-  
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error', msg: string } | null>(null)
@@ -27,8 +24,6 @@ export function Settings() {
         setFixedCost(Number(data.monthly_fixed_cost))
         setDesiredProfit(Number(data.desired_monthly_profit))
         setAverageOrders(Number(data.average_monthly_orders))
-        
-        // Puxa o dado do banco. Se não existir, usa 40 como padrão
         setMinMargin(data.min_margin_percentage ? Number(data.min_margin_percentage) : 40)
       }
     } catch (error) {
@@ -52,7 +47,7 @@ export function Settings() {
           monthly_fixed_cost: fixedCost,
           desired_monthly_profit: desiredProfit,
           average_monthly_orders: averageOrders,
-          min_margin_percentage: minMargin // Salva a nova métrica no banco
+          min_margin_percentage: minMargin
         })
         .eq('id', goalId)
 
@@ -81,15 +76,15 @@ export function Settings() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="h-16 border-b border-slate-800 flex items-center px-8 bg-slate-900/50">
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <h1 className="text-xl font-semibold text-white tracking-wide flex items-center gap-2">
           <SettingsIcon className="w-6 h-6 text-slate-400" />
           Configurações da Oficina
         </h1>
       </header>
 
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
+        <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           
           <div className="lg:col-span-2 bg-slate-800 rounded-2xl border border-slate-700 shadow-sm p-6 h-fit">
             <h2 className="text-lg font-bold text-white mb-6">Metas Financeiras Inteligentes</h2>
@@ -135,7 +130,6 @@ export function Settings() {
                   <p className="text-xs text-slate-500 mt-1">Volume médio de carros atendidos em 30 dias.</p>
                 </div>
 
-                {/* NOVO CAMPO: Margem Mínima Aceitável */}
                 <div className="border-t border-slate-700 pt-6">
                   <label className="block text-sm font-medium text-slate-400 mb-2 flex items-center gap-2">
                     <Percent className="w-4 h-4 text-orange-400" /> Margem Mínima Aceitável (%)
@@ -147,7 +141,7 @@ export function Settings() {
                     onChange={(e) => setMinMargin(Number(e.target.value))}
                     className="w-full bg-slate-900 border border-slate-700 text-white rounded-lg px-4 py-2.5 focus:outline-none focus:border-orange-500"
                   />
-                  <p className="text-xs text-slate-500 mt-1">Define quando uma OS ou Mecânico entra na zona de alerta vermelho.</p>
+                  <p className="text-xs text-slate-500 mt-1">Define quando entra na zona de alerta vermelho.</p>
                 </div>
               </div>
 
@@ -186,7 +180,6 @@ export function Settings() {
                 <p className="text-xs text-slate-500 mt-2">Valor ideal por OS para bater a meta mensal.</p>
               </div>
 
-              {/* NOVA PRÉVIA: Tolerância Operacional */}
               <div className="bg-slate-800 border border-orange-500/20 rounded-xl p-4">
                 <p className="text-slate-400 text-sm mb-1">Alerta de Margem Baixa</p>
                 <p className="text-2xl font-bold text-orange-400">Abaixo de {minMargin}%</p>
@@ -196,7 +189,7 @@ export function Settings() {
             
             <div className="mt-6 p-4 bg-blue-500/10 border border-blue-500/20 rounded-xl">
               <p className="text-xs text-blue-400 leading-relaxed">
-                As alterações feitas aqui atualizarão imediatamente o <strong>Simulador de Esforço Operacional</strong> no Painel Executivo e as tags nas <strong>Ordens de Serviço</strong>.
+                As alterações feitas aqui atualizarão imediatamente o <strong>Simulador</strong> e as tags nas <strong>Ordens de Serviço</strong>.
               </p>
             </div>
           </div>

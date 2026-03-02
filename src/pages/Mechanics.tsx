@@ -7,8 +7,6 @@ export function Mechanics() {
   const [loading, setLoading] = useState(true)
   const [dataInicio, setDataInicio] = useState('')
   const [dataFim, setDataFim] = useState('')
-  
-  // NOVO: Estado para guardar a margem mínima dinâmica
   const [minMargin, setMinMargin] = useState<number>(40)
 
   useEffect(() => {
@@ -51,20 +49,11 @@ export function Mechanics() {
 
   const filteredOrders = getFilteredOrders()
 
-  // Agrupa por mecânico
   const mechanicsMap: Record<string, any> = {}
   filteredOrders.forEach(o => {
     const nome = o.mecanico
     if (!mechanicsMap[nome]) {
-      mechanicsMap[nome] = {
-        nome,
-        totalOS: 0,
-        osFechadas: 0,
-        osAbertas: 0,
-        faturamento: 0,
-        custoTotal: 0,
-        margens: [],
-      }
+      mechanicsMap[nome] = { nome, totalOS: 0, osFechadas: 0, osAbertas: 0, faturamento: 0, custoTotal: 0, margens: [] }
     }
     const m = mechanicsMap[nome]
     m.totalOS++
@@ -94,7 +83,6 @@ export function Mechanics() {
 
   const fmt = (v: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v)
 
-  // Função dinâmica baseada na margem configurada
   const getMargemStyle = (margem: number) => {
     if (margem >= minMargin + 15) return { color: 'text-emerald-400', icon: TrendingUp,   label: 'Excelente' }
     if (margem >= minMargin)      return { color: 'text-blue-400',    icon: TrendingUp,   label: 'Bom' }
@@ -111,7 +99,7 @@ export function Mechanics() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      <header className="h-16 border-b border-slate-800 flex items-center justify-between px-8 bg-slate-900/50">
+      <header className="border-b border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 md:px-8 md:py-0 md:h-16 bg-slate-900/50">
         <div>
           <h1 className="text-xl font-semibold text-white tracking-wide flex items-center gap-2">
             <Wrench className="w-5 h-5 text-emerald-400" />
@@ -119,7 +107,7 @@ export function Mechanics() {
           </h1>
           <p className="text-xs text-slate-400 mt-0.5">Ranking e produtividade dos mecânicos</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-xs text-slate-500">De</label>
             <input
@@ -148,16 +136,14 @@ export function Mechanics() {
           )}
         </div>
       </header>
-      <main className="flex-1 overflow-x-hidden overflow-y-auto p-8">
-        
-        {/* KPI Cards */}
+      <main className="flex-1 overflow-x-hidden overflow-y-auto p-4 md:p-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider flex items-center gap-1">
               <User className="w-3.5 h-3.5" /> Mecânicos Ativos
             </p>
             <h3 className="text-3xl font-bold text-white mt-1">{mechanics.length}</h3>
-            <p className="text-slate-500 text-xs mt-1">no período selecionado</p>
+            <p className="text-slate-500 text-xs mt-1">no período</p>
           </div>
           <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider flex items-center gap-1">
@@ -168,21 +154,20 @@ export function Mechanics() {
           </div>
           <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider flex items-center gap-1">
-              <DollarSign className="w-3.5 h-3.5" /> Faturamento Total
+              <DollarSign className="w-3.5 h-3.5" /> Faturamento
             </p>
             <h3 className="text-2xl font-bold text-emerald-400 mt-1">{fmt(totalFaturamento)}</h3>
             <p className="text-slate-500 text-xs mt-1">OS fechadas</p>
           </div>
           <div className="bg-slate-800 p-5 rounded-2xl border border-slate-700">
             <p className="text-slate-400 text-xs font-semibold uppercase tracking-wider flex items-center gap-1">
-              <Target className="w-3.5 h-3.5" /> Ticket Médio Geral
+              <Target className="w-3.5 h-3.5" /> Ticket Médio
             </p>
             <h3 className="text-2xl font-bold text-purple-400 mt-1">{fmt(ticketMedioGeral)}</h3>
             <p className="text-slate-500 text-xs mt-1">margem média: {margemMediaGeral.toFixed(1)}%</p>
           </div>
         </div>
 
-        {/* Tabela ranking */}
         <div className="bg-slate-800 rounded-2xl border border-slate-700 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-700 flex items-center justify-between">
             <h2 className="text-white font-semibold">Ranking de Produtividade</h2>
@@ -230,7 +215,7 @@ export function Mechanics() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
-                            <div className="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center">
+                            <div className="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center shrink-0">
                               <User className="w-4 h-4 text-slate-300" />
                             </div>
                             <span className="text-white font-medium">{mec.nome}</span>
@@ -270,7 +255,6 @@ export function Mechanics() {
           </div>
         </div>
 
-        {/* Alerta Dinâmico: Verifica se a margem está abaixo da meta configurada */}
         {mechanics.filter(m => m.margemMedia < minMargin).length > 0 && (
           <div className="mt-6 bg-rose-500/5 border border-rose-500/20 rounded-2xl p-5">
             <div className="flex items-center gap-2 mb-3">
@@ -280,7 +264,7 @@ export function Mechanics() {
             <div className="flex flex-wrap gap-3">
               {mechanics.filter(m => m.margemMedia < minMargin).map(m => (
                 <div key={m.nome} className="bg-slate-800 border border-rose-500/20 rounded-xl px-4 py-2 flex items-center gap-3">
-                  <User className="w-4 h-4 text-rose-400" />
+                  <User className="w-4 h-4 text-rose-400 shrink-0" />
                   <div>
                     <p className="text-white text-sm font-medium">{m.nome}</p>
                     <p className="text-rose-400 text-xs">{m.margemMedia.toFixed(1)}% de margem média</p>
