@@ -35,7 +35,7 @@ export function Login() {
         
         <div className="text-center mb-8">
           <img
-            src="/logo.png"
+            src="/logo-login.png"
             alt="Torque IA"
             className="w-28 h-28 mx-auto object-contain drop-shadow-[0_0_15px_rgba(16,185,129,0.4)] mb-4"
           />
